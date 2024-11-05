@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: default
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: airbnb_development
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    depends_on:
+      - db
+    environment:
+      DATABASE_HOST: db
+      DATABASE_NAME: airbnb_development
+      DATABASE_USER: default
+      DATABASE_PASSWORD: secret
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/myapp
+    command: bash -c "rm -f tmp/pids/server.pid && bundle install && rails db:create db:migrate && rails server -b 0.0.0.0"
+
+volumes:
+  postgres_data:
